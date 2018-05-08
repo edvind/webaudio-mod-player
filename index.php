@@ -1,31 +1,4 @@
 <!-- MOD/S3M/XM module player for Web Audio (c) 2012-2017 Firehawk/TDA (firehawk@haxor.fi) -->
-<?php
-  ///////////////////
-  // configuration
-  //
-
-  // when entering the website without a mod selected, the site will randomly pick one from
-  // the array below
-  $defmods=array(
-    "Necros/point_of_departure.s3m",
-    "Skaven/autonomous.s3m",
-    "Dune/x14.s3m",
-    "Purple_Motion/2nd_pm.s3m",
-    "Mantronix_and_Tip/mod.overload",
-    "Lizardking/mod.desert_dawn",
-    "Jester/mod.elysium",
-    "Uncle_Tom/mod.occ-san-geen",
-    "Captain/mod.beyond_music",
-    "Groo/mod.electrification"
-  );
-
-  // absolute URL path to where the modules are located - leading and trailing slashes are required!
-  $modulePath="/mods/";
-
-  //
-  //
-  ///////////////////
-?>
 <html>
   <head>
     <title>MOD/S3M/XM module player for Web Audio</title>
@@ -48,7 +21,7 @@ if (strstr($browserAsString, " AppleWebKit/") && strstr($browserAsString, " Mobi
     <script type="text/javascript" src="/js/ft2.js"></script>
     <script type="text/javascript" src="/js/ui.js"></script>
     <script type="text/javascript">
-      window.musicPath='<?php echo $modulePath; ?>';
+      window.musicPath='/xm/';
       window.musicLibrary=[];
 <?php
   // randomize default song
