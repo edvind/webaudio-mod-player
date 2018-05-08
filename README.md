@@ -1,8 +1,6 @@
 webaudio-mod-player
 ===================
 
-![Screenshot](https://raw.githubusercontent.com/jhalme/webaudio-mod-player/master/screenshot.jpg)
-
 This is a MOD/S3M/XM module player implemented in Javascript using the Web Audio API and runs fully within the browser. It
 has been tested and confirmed to work on Chrome 14+, Firefox 24+, Safari 6+ and Edge 20+. The Javascript performance of
 the browsers varies significantly, so some modules may stutter on one browser while the same module can play flawlessly
@@ -23,22 +21,8 @@ None of the player classes fully implement all the features and effects in each 
 be implemented. In addition, there most certainly will be some playback bugs in each player class - let me know if you run
 into some bad ones. 
 
-You can test the player here:
-
-<a href="https://mod.haxor.fi/">https://mod.haxor.fi/</a>
-
-
 To install on your own server, clone the repo to the document root and edit+rename example.htaccess to match your domain.
-Then create a directory 'mods' alongside index.php and structure is like this (note that both PC-style and Amiga-style filenames
-are supported but extension must always be in lowercase):
-
-/mods<br/>
-/mods/Mantronix_and_Tip<br/>
-/mods/Mantronix_and_Tip/mod.overload<br/>
-/mods/Necros<br/>
-/mods/Necros/point.s3m<br/>
-/mods/mod.saf<br/>
-
+Then create a directory 'mods' alongside index.php and structure is like this (note that both PC-style and Amiga-style filenames are supported but extension must always be in lowercase)
 
 Copyrights:
 - MOD/S3M/XM module player for Web Audio (c) 2012-2017 Jani Halme
