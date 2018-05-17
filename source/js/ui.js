@@ -7,6 +7,24 @@ var notelist=new Array("C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-
 
 var ft2volcmds=new Array("m", "v", "^", "-", "+", "s", "~", "p", "&lt;", "&gt;"); // 0x5 .. 0xe
 
+function getStyle(el,styleProp) {
+  var camelize = function (str) {
+    return str.replace(/\-(\w)/g, function(str, letter){
+      return letter.toUpperCase();
+    });
+  };
+
+  if (el.currentStyle) {
+    return el.currentStyle[camelize(styleProp)];
+  } else if (document.defaultView && document.defaultView.getComputedStyle) {
+    return document.defaultView.getComputedStyle(el,null)
+                               .getPropertyValue(styleProp);
+  } else {
+    return el.style[camelize(styleProp)]; 
+  }
+}
+
+
 function notef(n,s,v,c,d,cc)
 {
   function prn(n) { return (n==254)?"===":("<span class=\"note\">"+notelist[n&0x0f]+(n>>4)+"</span>"); }
@@ -205,19 +223,19 @@ function setVisualization(mod, v)
   switch (v) {
     case 0:
       $("#modvis").removeClass("down");
-      $(".currentpattern").removeClass("currentpattern");
-      $("#modchannels").hide();
+      if (mod && mod.playing) $("#pattern"+hb(mod.currentpattern())).addClass("currentpattern");
+      $("#modchannels").show();
       break;
 
     case 1:
       $("#modvis").addClass("down");
       if (mod && mod.playing) $("#pattern"+hb(mod.currentpattern())).addClass("currentpattern");
-      $("#modchannels").hide();
+      $("#modchannels").show();
       break;
 
     case 2:
-      $("#modvis").addClass("down");
-      $(".currentpattern").removeClass("currentpattern");
+      $("#modvis").addClass("down"); 
+      if (mod && mod.playing) $("#pattern"+hb(mod.currentpattern())).addClass("currentpattern");
       $("#modchannels").show();
       break;
   }
@@ -242,7 +260,6 @@ function updateUI(timestamp)
   var mod=window.module;
 
   if (mod.playing) {
-    if (window.moduleVis==2) {
       var txt, txt0="<br/>", txt1="<br/>";
       for(ch=0;ch<mod.channels;ch++) {
         txt='<span class="channelnr">'+hb(ch)+'</span> ['+vu(mod.chvu[ch])+'] '+
@@ -251,15 +268,18 @@ function updateUI(timestamp)
       }
       $("#even-channels").html(txt0);
       $("#odd-channels").html(txt1);
-    } else if (window.moduleVis==1) {
       if (oldpos>=0 && oldrow>=0) $(".currentrow").removeClass("currentrow");
       $("#pattern"+hb(mod.currentpattern())+"_row"+hb(mod.row)).addClass("currentrow");
-      $("#pattern"+hb(mod.currentpattern())).scrollTop(mod.row*16);
+      
+      var vh = getStyle(document.getElementById('pattern00_row00'), 'font-size');
+      vh = vh.substring(0, vh.length - 2);
+      vh = Math.round(vh);
+      //console.log(vh);
+      $("#pattern"+hb(mod.currentpattern())).scrollTop(mod.row*vh);
       if (oldpos != mod.position) {
         if (oldpos>=0) $(".currentpattern").removeClass("currentpattern");
         $("#pattern"+hb(mod.currentpattern())).addClass("currentpattern");
       }
-    }
 
     if (oldrow != mod.row || oldpos != mod.position) {
       $("#modtimer").replaceWith("<span id=\"modtimer\">"+
@@ -292,58 +312,6 @@ $(document).ready(function() {
     setVisualization(null, 1);
   }
 
-  if(typeof(Storage) !== "undefined") {
-    // read previous button states from localStorage
-    if (localStorage["modrepeat"]) {
-      if (localStorage["modrepeat"]=="true") {
-        $("#modrepeat").addClass("down");
-        module.setrepeat(true);
-      } else {
-        $("#modrepeat").removeClass("down");
-        module.setrepeat(false);
-      }
-    }
-    if (localStorage["modamiga"]) {
-      if (localStorage["modamiga"]=="500") {
-        $("#modamiga").addClass("down");
-        module.setamigamodel("500");
-      } else {
-        $("#modamiga").removeClass("down");
-        module.setamigamodel("1200");
-      }
-    }
-    if (localStorage["modpaula"]) {
-      switch (parseInt(localStorage["modpaula"])) {
-        case 0:
-        $("#modpaula").addClass("stereo");
-        $("#modpaula").addClass("down");
-        $("#modpaula").html("[))((]");
-        module.setseparation(0);
-        break;
-
-        case 1:
-        $("#modpaula").removeClass("stereo");
-        $("#modpaula").addClass("down");
-        $("#modpaula").html("[)oo(]");
-        module.setseparation(1);
-        break;
-
-        case 2:
-        $("#modpaula").removeClass("stereo");
-        $("#modpaula").removeClass("down");
-        $("#modpaula").html("[mono]");
-        module.setseparation(2);
-        break;
-      }
-    }
-    if (localStorage["playlist"]) {
-      var playlist=JSON.parse(localStorage["playlist"]);
-      for(i=0;i<playlist.length;i++) addToPlaylist(playlist[i]);
-    }
-    if (localStorage["modvis"])
-      setVisualization(null, parseInt(localStorage["modvis"]));
-  }
-
   module.onReady=function() {
     $("#modtitle").html(rpe(pad(this.title, 28)));
     $("#modsamples").html("");
@@ -353,11 +321,11 @@ $(document).ready(function() {
     $("#modinfo").append("('"+this.signature+"')");
     var s=window.currentModule.split("/");
     if (s.length > 1) {
-      $("title").html(s[1]+" - module player for Web Audio");
-      window.history.pushState("object of string", "Title", "/"+s[0]+"/"+s[1]);
+      $("title").html("TrackerStation - "+s[1]);
+      //window.history.pushState("object of string", "Title", "/"+s[0]+"/"+s[1]);
     } else {
-      $("title").html(s[0]+" - module player for Web Audio");
-      window.history.pushState("object of string", "Title", "/"+s[0]);
+      $("title").html("TrackerStation - "+s[0]);
+      //window.history.pushState("object of string", "Title", "/"+s[0]);
     }
 
     if (window.playlistActive) {
@@ -482,7 +450,7 @@ $(document).ready(function() {
   $("#modvis").click(function() {
     var v=(window.moduleVis+1)%3;
     setVisualization(module, v);
-    if(typeof(Storage) !== "undefined") localStorage.setItem("modvis", v);
+    //if(typeof(Storage) !== "undefined") localStorage.setItem("modvis", v);
     return false;
   });
 
